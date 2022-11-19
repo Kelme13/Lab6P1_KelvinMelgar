@@ -22,13 +22,13 @@ public class Lab6P1_KelvinMelgar {
         do{
             System.out.println("<-- Laboratorio 6 -->");
             System.out.println("1. Turing.");
-            System.out.println("2. en proceso....");
+            System.out.println("2. Constante de Kaprekar.");
             System.out.println("3. Salir.\n");
             System.out.print("Ingrese una opcion: ");
             opcion = leer.nextInt();
             
             switch(opcion){
-                case 1:{
+                case 1 -> {
                     int taman;
                     
                     System.out.println("<--- Turing --->");
@@ -41,6 +41,7 @@ public class Lab6P1_KelvinMelgar {
                     
                     int[] arreglo_g = generarArreglo(taman); 
                     
+                    System.out.print("Arreglo generado: ");
                     imprimirArreglo(arreglo_g);
                     
                     System.out.print("\nCadena de instrucciones [RLX]: ");
@@ -54,25 +55,21 @@ public class Lab6P1_KelvinMelgar {
                         System.out.println("Cadena invalida...");
                     }
                     
-                    break;
+                    System.out.println();
                 }//fin del turing
                 
-                
-                case 2:{
+                case 2 -> {
                     System.out.println("<--- Constante de Kaprekar --->");
                     System.out.print("Ingrese un numero: ");
                     int n_usuario = leer.nextInt();
                     System.out.println();
                     
                     if(verificarNumeroD(n_usuario)){
-                        System.out.println("Tiene 4 digitos");
-                        
                         if(NumerosIguales(n_usuario)){
                             
-                            int[] numeros = numerosArreglos(4);
+                            kaprekar(n_usuario);
                             
-                            System.out.println("Arreglo ascendente.");
-                            imprimirArreglo(arregloAscend(numeros));
+                            System.out.println();
                             
                         }else{
                             System.out.println("Son iguales");
@@ -83,10 +80,17 @@ public class Lab6P1_KelvinMelgar {
                     
                     break;
                 }
+                
+                case 3 -> {
+                    System.out.println("Saliendo...");
+                    break;
+                }
+                
+                default ->{
+                    System.out.println("Opcion invalida...\n");
+                    break;
+                }
             }
-            
-            
-            
         }while(opcion != 3);
         
     }
@@ -122,6 +126,8 @@ public class Lab6P1_KelvinMelgar {
             
             switch(c){
                 case 'R', 'X', 'L' -> {
+                    paso = true;
+                    break;
                 }
                 default -> {
                     paso = false;
@@ -145,6 +151,7 @@ public class Lab6P1_KelvinMelgar {
         for (int i = 0; i < instruc.length(); i++) {
             char l = instruc.charAt(i);
             
+            //evalua si el apuntador esta en el rango del arreglo
             if (apuntador >= 0 && apuntador < arreglo.length) {
                 switch (l) {
                     case 'R': {
@@ -190,7 +197,7 @@ public class Lab6P1_KelvinMelgar {
         int[] numeros = new int[4];
         int acum_ig = 1;
         
-        numeros = numerosArreglos(n);
+        numeros = asignarArreglo(n);
         
         //comprueba los numeros iguales
         for (int i = 0; i < 3; i++) {
@@ -211,12 +218,21 @@ public class Lab6P1_KelvinMelgar {
     }
     
     //Asigna a un arreglo el numero
-    public static int[] numerosArreglos(int numero){
-        int[] temp = new int[4];
+    public static int[] asignarArreglo(int numero){
+        //para sacar el tamaño (no es necesario pero para saber xD)
+        int n = numero;
+        int acum_d = 0;
+        while(n > 0){
+            n = n/10;
+            acum_d++;
+        }
+        int[] temp = new int[acum_d];
+        int posc = acum_d - 1; //seria 3
         
-        for (int i = 3; i >= 0; i--) {
-            temp[i] = numero%10;
+        while(numero > 0) {
+            temp[posc] = numero%10;
             numero = numero / 10;
+            posc--;
         }
         
         return temp;
@@ -237,22 +253,75 @@ public class Lab6P1_KelvinMelgar {
     
     //Ordena de manera ascendente.
     public static int[] arregloAscend(int[] arreglo){
-        int[] temp = new int[arreglo.length];
         
-        for (int i = 0; i < arreglo.length; i++) {
-            int a = arreglo[i];
+        //Itera hasta antes de la ultima posicion del arreglo
+        for (int i = 0; i < arreglo.length-1; i++) {
             
+            //inicia una unidad adelante del elemento para iterar en todo lo que resta del arreglo
             for (int j = i + 1; j < arreglo.length; j++) {
                 
-               if(a < arreglo[j] || arreglo.length-1 == j){
-                   temp[j-1] = a;
-                   
-               }
-                   
-                
-            }   
+                //Verifica si el primer elemento(i) es mayor que los que estan adelante(j)
+                if(arreglo[i] > arreglo[j]){
+                    /*
+                    Quiere decir que el que esta adelante de 'i'(j) debe ir antes, entonces con 'n' guarda el numero de 'i' y a la posicion
+                    de 'i' le asigno lo que esta en j, y a la posicion de j lo que antes tenia i (n) 
+                    */
+                    int n = arreglo[i];
+                    arreglo[i] = arreglo[j];
+                    arreglo[j] = n;
+                    
+                    /*
+                    con esto consigo posicionar el numero menor de todo el arreglo primero,
+                    despues paso a la siguiente posicion, que podria ser un numero 
+                    diferente al arreglo original y vuelve a evaluar ese numero con 
+                    lo que resta del arreglo y asi posiciono el que le sigue al mas menor 
+                    y termina por comprobar todo el arreglo.
+                    */
+                }
+            }
         }
+        return arreglo;
+    }
+    
+    //Ordena de manera descendente
+    public static int[] arregloDescend(int[] arreglo){
+        for (int i = 0; i < arreglo.length-1; i++) {
+            for (int j = i + 1; j < arreglo.length; j++) {
+                
+                if(arreglo[i] < arreglo[j]){
+                    int n = arreglo[i];
+                    arreglo[i] = arreglo[j];
+                    arreglo[j] = n;
+                }
+            }
+        }
+        return arreglo;
+    }
+    
+    //metodo completito de kaprekar
+    public static void kaprekar(int numero){
         
-        return temp;
+        for (int i = 0; i < 7; i++) {
+            if(numero == 6174){
+                break;
+            }
+            
+            int[] numeros_a = arregloDescend(asignarArreglo(numero));
+            int[] numeros_b = arregloAscend(asignarArreglo(numero));
+            int nums_a = arregloAnumero(numeros_a);
+            int nums_b = arregloAnumero(numeros_b);
+            
+            if(nums_a < nums_b){
+                numero = nums_b - nums_a;
+                System.out.printf("%d - %d = %d", nums_b, nums_a, numero);
+            }else{
+                numero = nums_a - nums_b;
+                System.out.printf("%d - %d = %d", nums_a, nums_b, numero);
+
+            }
+            System.out.println();
+            
+        }//fin del for
+        
     }
 }
